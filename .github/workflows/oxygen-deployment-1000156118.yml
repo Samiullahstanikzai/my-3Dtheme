@@ -52,20 +52,8 @@ jobs:
             exit 0
           fi
 
-          known_auth_failure="$(
-            echo "$deploy_output" | awk '
-              /GraphQL Error \(Code: 401\)/ {window=20; next}
-              window > 0 {
-                if (/mutation BuildInitiate/) {
-                  print "yes"
-                  exit
-                }
-                window--
-              }
-            '
-          )"
-
-          if [ "$known_auth_failure" = "yes" ]; then
+          if echo "$deploy_output" | grep -Fq "GraphQL Error (Code: 401)" && \
+            echo "$deploy_output" | grep -Fq "mutation BuildInitiate"; then
             echo "known_auth_failure=yes" >> "$GITHUB_OUTPUT"
           else
             echo "known_auth_failure=no" >> "$GITHUB_OUTPUT"
