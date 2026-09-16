@@ -36,6 +36,8 @@ jobs:
         run: npm ci
 
       - name: Build and Publish to Oxygen
+        id: oxygen_deploy
+        continue-on-error: true
         run: |
           set +e
           deploy_output="$(npx shopify hydrogen deploy 2>&1)"
@@ -43,8 +45,10 @@ jobs:
           set -e
 
           echo "$deploy_output"
+          echo "deploy_status=$deploy_status" >> "$GITHUB_OUTPUT"
 
           if [ "$deploy_status" -eq 0 ]; then
+            echo "known_auth_failure=no" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -62,10 +66,21 @@ jobs:
           )"
 
           if [ "$known_auth_failure" = "yes" ]; then
+            echo "known_auth_failure=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "known_auth_failure=no" >> "$GITHUB_OUTPUT"
+          fi
+          exit "$deploy_status"
+        env:
+          SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
+
+      - name: Handle deployment result
+        if: ${{ steps.oxygen_deploy.outcome == 'failure' }}
+        run: |
+          if [ "${{ steps.oxygen_deploy.outputs.known_auth_failure }}" = "yes" ]; then
             echo "::warning::Oxygen deployment failed with GraphQL 401. Refresh OXYGEN_DEPLOYMENT_TOKEN_1000156118 in repository secrets."
             exit 0
           fi
 
-          exit "$deploy_status"
-        env:
-          SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
+          echo "::error::Oxygen deployment failed for a reason other than the known GraphQL 401 auth issue."
+          exit 1
