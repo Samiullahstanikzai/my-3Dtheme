@@ -37,8 +37,22 @@ jobs:
 
       - name: Build and Publish to Oxygen
         run: |
-          if ! npx shopify hydrogen deploy; then
-            echo "::warning::Oxygen deployment failed (GraphQL 401). Refresh OXYGEN_DEPLOYMENT_TOKEN_1000156118 in repository secrets."
+          set +e
+          deploy_output="$(npx shopify hydrogen deploy 2>&1)"
+          deploy_status=$?
+          set -e
+
+          echo "$deploy_output"
+
+          if [ "$deploy_status" -eq 0 ]; then
+            exit 0
           fi
+
+          if echo "$deploy_output" | grep -q "GraphQL Error (Code: 401)"; then
+            echo "::warning::Oxygen deployment failed with GraphQL 401. Refresh OXYGEN_DEPLOYMENT_TOKEN_1000156118 in repository secrets."
+            exit 0
+          fi
+
+          exit "$deploy_status"
         env:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
