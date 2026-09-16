@@ -76,7 +76,7 @@ jobs:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
 
       - name: Handle deployment result
-        if: ${{ steps.oxygen_deploy.outcome == 'failure' }}
+        if: ${{ steps.oxygen_deploy.outputs.deploy_status != '0' }}
         shell: bash
         run: |
           if [ "${{ steps.oxygen_deploy.outputs.known_auth_failure }}" = "yes" ]; then
