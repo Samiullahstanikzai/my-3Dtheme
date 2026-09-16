@@ -38,6 +38,7 @@ jobs:
       - name: Build and Publish to Oxygen
         id: oxygen_deploy
         continue-on-error: true
+        shell: bash
         run: |
           set +e
           deploy_output="$(npx shopify hydrogen deploy 2>&1)"
@@ -76,6 +77,7 @@ jobs:
 
       - name: Handle deployment result
         if: ${{ steps.oxygen_deploy.outcome == 'failure' }}
+        shell: bash
         run: |
           if [ "${{ steps.oxygen_deploy.outputs.known_auth_failure }}" = "yes" ]; then
             echo "::warning::Oxygen deployment failed with GraphQL 401. Refresh OXYGEN_DEPLOYMENT_TOKEN_1000156118 in repository secrets."
