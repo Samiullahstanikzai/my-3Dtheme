@@ -76,9 +76,13 @@ jobs:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
 
       - name: Handle deployment result
-        if: ${{ steps.oxygen_deploy.outputs.deploy_status != '0' }}
+        if: ${{ always() }}
         shell: bash
         run: |
+          if [ "${{ steps.oxygen_deploy.outputs.deploy_status }}" = "0" ]; then
+            exit 0
+          fi
+
           if [ "${{ steps.oxygen_deploy.outputs.known_auth_failure }}" = "yes" ]; then
             echo "::warning::Oxygen deployment failed with GraphQL 401. Refresh OXYGEN_DEPLOYMENT_TOKEN_1000156118 in repository secrets."
             exit 0
