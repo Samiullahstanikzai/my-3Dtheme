@@ -76,7 +76,7 @@ jobs:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
 
       - name: Handle deployment result
-        if: ${{ always() && !cancelled() && steps.oxygen_deploy.conclusion != 'skipped' }}
+        if: ${{ always() && !cancelled() }}
         shell: bash
         run: |
           if [ -z "${{ steps.oxygen_deploy.outputs.deploy_status }}" ]; then
