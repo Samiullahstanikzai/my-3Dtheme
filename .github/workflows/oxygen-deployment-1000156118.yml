@@ -76,9 +76,14 @@ jobs:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
 
       - name: Handle deployment result
-        if: ${{ always() }}
+        if: ${{ always() && steps.oxygen_deploy.conclusion != 'skipped' }}
         shell: bash
         run: |
+          if [ -z "${{ steps.oxygen_deploy.outputs.deploy_status }}" ]; then
+            echo "::error::Oxygen deployment status output is missing. Check the deploy step logs."
+            exit 1
+          fi
+
           if [ "${{ steps.oxygen_deploy.outputs.deploy_status }}" = "0" ]; then
             exit 0
           fi
