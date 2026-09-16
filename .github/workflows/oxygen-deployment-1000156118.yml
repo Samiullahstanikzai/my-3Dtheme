@@ -82,5 +82,5 @@ jobs:
             exit 0
           fi
 
-          echo "::error::Oxygen deployment failed for a reason other than the known GraphQL 401 auth issue."
+          echo "::error::Oxygen deployment failed with exit status ${{ steps.oxygen_deploy.outputs.deploy_status }} for a reason other than the known GraphQL 401 auth issue. See deploy step logs above for details."
           exit 1
