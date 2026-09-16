@@ -50,7 +50,7 @@ jobs:
 
           graphql_codes="$(echo "$deploy_output" | sed -n 's/.*GraphQL Error (Code: \([0-9][0-9][0-9]\)).*/\1/p' | sort -u)"
 
-          if [ "$graphql_codes" = "401" ] && echo "$deploy_output" | grep -q "mutation BuildInitiate"; then
+          if echo "$graphql_codes" | grep -qx "401" && echo "$deploy_output" | grep -q "mutation BuildInitiate"; then
             echo "::warning::Oxygen deployment failed with GraphQL 401. Refresh OXYGEN_DEPLOYMENT_TOKEN_1000156118 in repository secrets."
             exit 0
           fi
