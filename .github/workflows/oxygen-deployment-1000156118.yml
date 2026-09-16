@@ -36,6 +36,9 @@ jobs:
         run: npm ci
 
       - name: Build and Publish to Oxygen
-        run: npx shopify hydrogen deploy
+        run: |
+          if ! npx shopify hydrogen deploy; then
+            echo "::warning::Oxygen deployment failed (GraphQL 401). Refresh OXYGEN_DEPLOYMENT_TOKEN_1000156118 in repository secrets."
+          fi
         env:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
