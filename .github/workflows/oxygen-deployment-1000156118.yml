@@ -54,7 +54,9 @@ jobs:
           import re
           import sys
 
-          deploy_log = pathlib.Path(sys.argv[1]).read_bytes().replace(b'\r', b'\n')
+          deploy_log = pathlib.Path(sys.argv[1]).read_bytes().replace(b'\r\n', b'\n').replace(
+              b'\r', b'\n'
+          )
           clean_log = re.sub(rb'\x1B\[[0-?]*[ -/]*[@-~]', b'', deploy_log).decode(
               'utf-8', errors='ignore'
           )
