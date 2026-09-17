@@ -49,7 +49,7 @@ jobs:
             exit 0
           fi
 
-          if python - "$deploy_log" <<'PY'
+          if python3 - "$deploy_log" <<'PY'
           import pathlib
           import re
           import sys
