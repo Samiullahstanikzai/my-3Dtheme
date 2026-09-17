@@ -36,6 +36,7 @@ jobs:
         run: npm ci
 
       - name: Build and Publish to Oxygen
+        shell: bash
         run: |
           deploy_log=$(mktemp)
           trap 'rm -f "$deploy_log"' EXIT
