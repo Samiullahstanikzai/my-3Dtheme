@@ -55,7 +55,7 @@ jobs:
           import sys
 
           deploy_log = pathlib.Path(sys.argv[1]).read_text(encoding='utf-8', errors='replace')
-          clean_log = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', deploy_log)
+          clean_log = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', deploy_log).replace('\r', '\n')
           error_blocks = re.split(r'\n\s*\n+', clean_log)
           known_failure = any(
               'graphql error (code: 401):' in block.lower()
