@@ -60,11 +60,14 @@ jobs:
           clean_log = re.sub(rb'\x1B\[[0-?]*[ -/]*[@-~]', b'', deploy_log).decode(
               'utf-8', errors='ignore'
           )
-          error_blocks = re.split(r'\n\s*\n+', clean_log)
+          log_lines = clean_log.splitlines()
           known_failure = any(
-              'graphql error (code: 401):' in block.lower()
-              and 'mutation buildinitiate(' in block.lower()
-              for block in error_blocks
+              'graphql error (code: 401):' in line.lower()
+              and any(
+                  'mutation buildinitiate(' in candidate.lower()
+                  for candidate in log_lines[index : index + 25]
+              )
+              for index, line in enumerate(log_lines)
           )
           sys.exit(0 if known_failure else 1)
           PY
