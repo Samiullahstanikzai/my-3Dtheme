@@ -56,9 +56,8 @@ jobs:
 
           deploy_log = pathlib.Path(sys.argv[1]).read_text(encoding='utf-8', errors='replace')
           known_failure = re.compile(
-              r'GraphQL Error \(Code: 401\):.*?'
-              r'mutation BuildInitiate\(\$environment: EnvironmentSelectorInput, \$labels:.*?'
-              r'buildInitiate\(environment: \$environment, labels: \$labels\)',
+              r'GraphQL Error \(Code: 401\):.{0,2000}?'
+              r'mutation BuildInitiate\(',
               re.S,
           )
           sys.exit(0 if known_failure.search(deploy_log) else 1)
