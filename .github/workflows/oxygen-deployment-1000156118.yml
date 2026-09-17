@@ -37,19 +37,20 @@ jobs:
 
       - name: Build and Publish to Oxygen
         run: |
-          set +e
-          deploy_output=$(npx shopify hydrogen deploy 2>&1)
-          deploy_status=$?
-          set -e
+          deploy_log=$(mktemp)
+          trap 'rm -f "$deploy_log"' EXIT
 
-          printf '%s\n' "$deploy_output"
+          set +e
+          npx shopify hydrogen deploy 2>&1 | tee "$deploy_log"
+          deploy_status=${PIPESTATUS[0]}
+          set -e
 
           if [ "$deploy_status" -eq 0 ]; then
             exit 0
           fi
 
-          if printf '%s' "$deploy_output" | grep -Fq 'GraphQL Error (Code: 401):' &&
-            printf '%s' "$deploy_output" | grep -Fq 'mutation BuildInitiate'; then
+          if grep -Fq 'GraphQL Error (Code: 401):' "$deploy_log" &&
+            grep -Fq 'mutation BuildInitiate' "$deploy_log"; then
             echo "::warning::Ignoring known Oxygen BuildInitiate 401 auth failure."
             exit 0
           fi
