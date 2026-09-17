@@ -49,36 +49,7 @@ jobs:
             exit 0
           fi
 
-          if python3 - "$deploy_log" <<'PY'
-          import pathlib
-          import re
-          import sys
-
-          deploy_log = pathlib.Path(sys.argv[1]).read_bytes().replace(b'\r\n', b'\n').replace(
-              b'\r', b'\n'
-          )
-          clean_log = re.sub(rb'\x1B\[[0-?]*[ -/]*[@-~]', b'', deploy_log).decode(
-              'utf-8', errors='ignore'
-          )
-          log_lines = [line.lower() for line in clean_log.splitlines()]
-          known_failure = any(
-              (
-                  'graphql error (code: 401):' in line
-                  or 'mutation buildinitiate(' in line
-              )
-              and any(
-                  'graphql error (code: 401):' in candidate
-                  for candidate in log_lines[max(0, index - 24) : index + 25]
-              )
-              and any(
-                  'mutation buildinitiate(' in candidate
-                  for candidate in log_lines[max(0, index - 24) : index + 25]
-              )
-              for index, line in enumerate(log_lines)
-          )
-          sys.exit(0 if known_failure else 1)
-          PY
-          then
+          if node ./scripts/is-known-oxygen-auth-failure.mjs "$deploy_log"; then
             echo "::warning::Ignoring known Oxygen BuildInitiate 401 auth failure."
             exit 0
           fi
