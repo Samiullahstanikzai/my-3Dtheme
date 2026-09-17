@@ -55,13 +55,11 @@ jobs:
           import sys
 
           deploy_log = pathlib.Path(sys.argv[1]).read_text(encoding='utf-8', errors='replace')
-          error_blocks = re.findall(
-              r'╭─ error .*?╰[^\n]*',
-              deploy_log,
-              re.S,
-          )
+          clean_log = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', deploy_log)
+          error_blocks = re.split(r'\n\s*\n+', clean_log)
           known_failure = any(
-              'GraphQL Error (Code: 401):' in block and 'mutation BuildInitiate(' in block
+              'graphql error (code: 401):' in block.lower()
+              and 'mutation buildinitiate(' in block.lower()
               for block in error_blocks
           )
           sys.exit(0 if known_failure else 1)
