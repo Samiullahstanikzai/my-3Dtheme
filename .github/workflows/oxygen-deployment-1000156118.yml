@@ -49,8 +49,21 @@ jobs:
             exit 0
           fi
 
-          if grep -Fq 'GraphQL Error (Code: 401):' "$deploy_log" &&
-            grep -Fq 'mutation BuildInitiate' "$deploy_log"; then
+          if python - "$deploy_log" <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          deploy_log = pathlib.Path(sys.argv[1]).read_text()
+          known_failure = re.compile(
+              r'GraphQL Error \(Code: 401\):.*?'
+              r'mutation BuildInitiate\(\$environment: EnvironmentSelectorInput, \$labels:.*?'
+              r'buildInitiate\(environment: \$environment, labels: \$labels\)',
+              re.S,
+          )
+          sys.exit(0 if known_failure.search(deploy_log) else 1)
+          PY
+          then
             echo "::warning::Ignoring known Oxygen BuildInitiate 401 auth failure."
             exit 0
           fi
