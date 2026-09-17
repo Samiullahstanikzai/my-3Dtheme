@@ -54,7 +54,7 @@ jobs:
           import re
           import sys
 
-          deploy_log = pathlib.Path(sys.argv[1]).read_text()
+          deploy_log = pathlib.Path(sys.argv[1]).read_text(encoding='utf-8', errors='replace')
           known_failure = re.compile(
               r'GraphQL Error \(Code: 401\):.*?'
               r'mutation BuildInitiate\(\$environment: EnvironmentSelectorInput, \$labels:.*?'
