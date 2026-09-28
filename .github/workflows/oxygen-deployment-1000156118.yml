@@ -48,7 +48,7 @@ jobs:
           fi
 
           if node scripts/is-known-oxygen-auth-failure.mjs < /tmp/hydrogen-deploy.log; then
-            echo "Detected known Oxygen BuildInitiate 401 auth failure; skipping failure."
+            echo "::warning::Detected known Oxygen BuildInitiate 401 auth failure; skipping failure."
             exit 0
           fi
 

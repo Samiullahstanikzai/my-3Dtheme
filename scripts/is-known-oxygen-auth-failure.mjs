@@ -8,9 +8,14 @@ stdin.on('data', (chunk) => {
 });
 
 stdin.on('end', () => {
+  const normalizedLogOutput = logOutput
+    .replace(/\u001b\[[0-9;]*m/g, '')
+    .replace(/\r/g, '')
+    .toLowerCase();
+
   const isKnownFailure =
-    logOutput.includes('GraphQL Error (Code: 401)') &&
-    logOutput.includes('mutation BuildInitiate');
+    normalizedLogOutput.includes('graphql error (code: 401)') &&
+    normalizedLogOutput.includes('mutation buildinitiate');
 
   process.exit(isKnownFailure ? 0 : 1);
 });
