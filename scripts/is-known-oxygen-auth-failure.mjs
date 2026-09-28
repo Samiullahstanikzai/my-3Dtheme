@@ -13,9 +13,14 @@ stdin.on('end', () => {
     .replace(/\r/g, '')
     .toLowerCase();
 
-  const isKnownFailure =
-    normalizedLogOutput.includes('graphql error (code: 401)') &&
-    normalizedLogOutput.includes('mutation buildinitiate');
+  const errorBlocks =
+    normalizedLogOutput.match(/╭─ error[\s\S]*?╰/g) ?? [normalizedLogOutput];
+
+  const isKnownFailure = errorBlocks.some(
+    (errorBlock) =>
+      errorBlock.includes('graphql error (code: 401)') &&
+      errorBlock.includes('mutation buildinitiate'),
+  );
 
   process.exit(isKnownFailure ? 0 : 1);
 });

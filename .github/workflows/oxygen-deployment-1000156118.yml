@@ -38,8 +38,11 @@ jobs:
       - name: Build and Publish to Oxygen
         shell: bash
         run: |
+          deploy_log_file="$(mktemp)"
+          trap 'rm -f "$deploy_log_file"' EXIT
+
           set +e
-          npx shopify hydrogen deploy 2>&1 | tee /tmp/hydrogen-deploy.log
+          npx shopify hydrogen deploy 2>&1 | tee "$deploy_log_file"
           deploy_exit_code=${PIPESTATUS[0]}
           set -e
 
@@ -47,7 +50,7 @@ jobs:
             exit 0
           fi
 
-          if node scripts/is-known-oxygen-auth-failure.mjs < /tmp/hydrogen-deploy.log; then
+          if node scripts/is-known-oxygen-auth-failure.mjs < "$deploy_log_file"; then
             echo "::warning::Detected known Oxygen BuildInitiate 401 auth failure; skipping failure."
             exit 0
           fi
