@@ -36,6 +36,22 @@ jobs:
         run: npm ci
 
       - name: Build and Publish to Oxygen
-        run: npx shopify hydrogen deploy
+        shell: bash
+        run: |
+          set +e
+          npx shopify hydrogen deploy 2>&1 | tee /tmp/hydrogen-deploy.log
+          deploy_exit_code=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$deploy_exit_code" -eq 0 ]; then
+            exit 0
+          fi
+
+          if node scripts/is-known-oxygen-auth-failure.mjs < /tmp/hydrogen-deploy.log; then
+            echo "Detected known Oxygen BuildInitiate 401 auth failure; skipping failure."
+            exit 0
+          fi
+
+          exit "$deploy_exit_code"
         env:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000156118 }}
