@@ -14,7 +14,8 @@ stdin.on('end', () => {
     .toLowerCase();
 
   const errorBlocks =
-    normalizedLogOutput.match(/╭─ error[\s\S]*?╰/g) ?? [normalizedLogOutput];
+    normalizedLogOutput.match(/╭─ error[\s\S]*?╰[^\n]*(?:\n|$)/g) ??
+    [normalizedLogOutput];
 
   const isKnownFailure = errorBlocks.some(
     (errorBlock) =>
